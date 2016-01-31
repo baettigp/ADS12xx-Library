@@ -32,20 +32,31 @@ ads12xx::ads12xx(const int CS, const int START, const int DRDY) {
 #ifdef ADS1258
 	pinMode(START, OUTPUT);		  // set START pin as Output
 	digitalWrite(START, LOW);        // HIGH = Start Convert Continuously
-	delayMicroseconds(1000000);
+//	delayMicroseconds(1000000);
+delay(1000);
 	digitalWrite(START, HIGH);        // HIGH = Start Convert Continuously
-	delayMicroseconds(1000000);
+//	delayMicroseconds(1000000);
+delay(1000);
 	_START = START;
 #define	spimodeX SPI_MODE3
 #endif
 	pinMode(DRDY, INPUT);             // DRDY read
 	_CS = CS;
 	_DRDY = DRDY;
-	delayMicroseconds(500000);
+//	delayMicroseconds(500000);
+delay(1000);
 
+#if defined(ENERGIA)
+	SPI.setBitOrder(MSBFIRST);
+	SPI.setDataMode(spimodeX);
+	SPI.setClockDivider(SPI_CLOCK_DIV8);
+	
+#endif
+	
 	SPI.begin();
 	attachInterrupt(0, _DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection
-	delayMicroseconds(500000);
+//	delayMicroseconds(500000);
+delay(1000);
 	// interal VREF einschalten
 }
 
@@ -57,7 +68,9 @@ long ads12xx::GetConversion() {
 	uint8_t byte1;
 	uint8_t byte2;
 	waitforDRDY(); // Wait until DRDY is LOW
+#if !defined(ENERGIA)
 	SPI.beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, spimodeX)); 
+#endif
 	digitalWrite(_CS, LOW); //Pull SS Low to Enable Communications with ADS1247
 //	delayMicroseconds(10); // RD: Wait 25ns for ADC12xx to get ready
 	SPI.transfer(RDATA); //Issue RDATA
@@ -69,7 +82,9 @@ long ads12xx::GetConversion() {
 	regData = ((((long)byte0<<24) | ((long)byte1<<16) | ((long)byte2<<8)) >> 8); //as data from ADC comes in twos complement
 
 	digitalWrite(_CS, HIGH);
+#if !defined(ENERGIA)
 	SPI.endTransaction();
+#endif
 	noInterrupts();
 	DRDY_state = HIGH;
 	interrupts();
@@ -83,7 +98,9 @@ long ads12xx::GetConversion() {
 	uint8_t byte1;
 	uint8_t byte2;
     waitforDRDY(); // Wait until DRDY is LOW
+#if !defined(ENERGIA)
 	SPI.beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, spimodeX)); 
+#endif
     digitalWrite(_CS, LOW); //Pull SS Low to Enable Communications with ADS1247
 	SPI.transfer(RDATA); //Issue RDATA
 
@@ -95,7 +112,9 @@ long ads12xx::GetConversion() {
 	*regData = ((((long)byte0<<24) | ((long)byte1<<16) | ((long)byte2<<8)) >> 8); //as data from ADC comes in twos complement
 
 	digitalWrite(_CS, HIGH);
+#if !defined(ENERGIA)
 	SPI.endTransaction();
+#endif
 	noInterrupts();
 //	delayMicroseconds(10);
 	DRDY_state = HIGH;
@@ -115,7 +134,9 @@ void ads12xx::SetRegisterValue(uint8_t regAdress, uint8_t regValue) {
 	if (regValue != regValuePre) {
 		delayMicroseconds(10);
 		waitforDRDY();
+#if !defined(ENERGIA)
 		SPI.beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, spimodeX)); // initialize SPI with SPI_SPEED, MSB first, SPI Mode1
+#endif
 		digitalWrite(_CS, LOW);
 		delayMicroseconds(10);
 		SPI.transfer(WREG | regAdress); // send 1st command byte, address of the register
@@ -135,7 +156,9 @@ void ads12xx::SetRegisterValue(uint8_t regAdress, uint8_t regValue) {
 			Serial.print(regAdress, HEX);
 			Serial.println(" succeeded!");
 		}
+#if !defined(ENERGIA)
 		SPI.endTransaction();
+#endif
 	}
 
 }
@@ -146,7 +169,9 @@ void ads12xx::SetRegisterValue(uint8_t regAdress, uint8_t regValue) {
 //To do: implement multiple register read for ADS1258
 unsigned long ads12xx::GetRegisterValue(uint8_t regAdress) {
 	waitforDRDY();
+#if !defined(ENERGIA)
 	SPI.beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, spimodeX)); // initialize SPI with 4Mhz clock, MSB first, SPI Mode0
+#endif
 	uint8_t bufr;
 	digitalWrite(_CS, LOW);
 	SPI.transfer(RREG | regAdress); // send 1st command byte, address of the register
@@ -156,7 +181,9 @@ unsigned long ads12xx::GetRegisterValue(uint8_t regAdress) {
 	bufr = SPI.transfer(NOP);	// read data of the register
 	digitalWrite(_CS, HIGH);
 	return bufr;
+#if !defined(ENERGIA)
 	SPI.endTransaction();
+#endif
 }
 
 /*
@@ -165,13 +192,17 @@ Like SELFCAL, GAIN, SYNC, WAKEUP
 */
 void ads12xx::SendCMD(uint8_t cmd) {
 	waitforDRDY();
+#if !defined(ENERGIA)
 	SPI.beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, spimodeX)); // initialize SPI with 4Mhz clock, MSB first, SPI Mode0
+#endif
 	digitalWrite(_CS, LOW);
 	delayMicroseconds(10);
 	SPI.transfer(cmd); 
 	delayMicroseconds(10);
 	digitalWrite(_CS, HIGH);
+#if !defined(ENERGIA)
 	SPI.endTransaction();
+#endif
 }
 
 
@@ -185,7 +216,9 @@ void ads12xx::Reset(const int RESET_PIN) {
 	delayMicroseconds(100);
 	digitalWrite(RESET_PIN, HIGH); //Reset line must be high bevo continue
 	delay(1); //RESET high to SPI communication start
+#if !defined(ENERGIA)
 	SPI.beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, spimodeX)); // initialize SPI with  clock, MSB first, SPI Mode1
+#endif
 	digitalWrite(_CS, LOW);
 	delayMicroseconds(10);
 	//SPI.transfer(RESET); //Reset
@@ -193,6 +226,8 @@ void ads12xx::Reset(const int RESET_PIN) {
 	SPI.transfer(SDATAC); //Issue SDATAC
 	delayMicroseconds(100);
 	digitalWrite(_CS, HIGH);
+#if !defined(ENERGIA)
 	SPI.endTransaction();
+#endif
 }
 

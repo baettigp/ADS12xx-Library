@@ -93,7 +93,7 @@ public:
 		regValues_t regValues
 		);
 
-private:
+//private:
 	int _CS;
 	int _DRDY;
 	int _START;
