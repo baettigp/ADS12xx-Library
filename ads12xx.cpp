@@ -54,8 +54,13 @@ delay(1000);
 #endif
 	
 	SPI.begin();
+#if !defined(ENERGIA)	
 	attachInterrupt(0, _DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection
-//	delayMicroseconds(500000);
+#endif
+#if defined(ENERGIA)
+	attachInterrupt(5, _DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection
+#endif
+	//	delayMicroseconds(500000);
 delay(1000);
 	// interal VREF einschalten
 }
