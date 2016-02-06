@@ -25,10 +25,8 @@ ads12xx::ads12xx() {}
 void ads12xx::begin(int CS, int START, int DRDY) {
 	pinMode(CS, OUTPUT);              // set the slaveSelectPin as an output:
 	digitalWrite(CS, HIGH); // CS HIGH = nothing selected
-#ifdef ENERGIA
-	SPI.setClockDivider(7); //For 25 MHz F5529
-#endif
-	#ifdef ADS1248
+
+#ifdef ADS1248
 #define	spimodeX SPI_MODE1
 #endif
 #ifdef ADS1256
@@ -37,6 +35,13 @@ void ads12xx::begin(int CS, int START, int DRDY) {
 #ifdef ADS1258
 #define	spimodeX SPI_MODE3
 #endif
+
+#ifdef ENERGIA
+	SPI.setClockDivider(8); //For 25 MHz F5529
+	SPI.setBitOrder(MSBFIRST);
+	 SPI.setDataMode(spimodeX);
+#endif
+
 	pinMode(DRDY, INPUT);             // DRDY read
 	pinMode(START, OUTPUT);
 	digitalWrite(START, LOW);        // HIGH = Start Convert Continuously
