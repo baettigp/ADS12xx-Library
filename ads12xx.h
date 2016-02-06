@@ -25,14 +25,15 @@ void waitforDRDY();
 
 class ads12xx {
 public:
-	ads12xx(
-		const int CS,
-		const int START,
-		const int DRDY
+	ads12xx();
+	void begin(
+		int CS,
+		int START,
+		int DRDY
 		);
 
 	void Reset(
-		const int RESET_PIN
+		
 		);
 
 	unsigned long  GetRegisterValue(
@@ -64,7 +65,7 @@ public:
 		uint8_t ADCON_val = ADCON_RESET;
 		uint8_t DRATE_val = DRATE_RESET;
 		uint8_t IO_val = IO_RESET;
-#endif // ADS1256 
+#endif // ADS1256
 #ifdef ADS1258
 		uint8_t CONFIG0_val;
 		uint8_t CONFIG1_val;
@@ -93,7 +94,7 @@ public:
 		regValues_t regValues
 		);
 
-//private:
+private:
 	int _CS;
 	int _DRDY;
 	int _START;
