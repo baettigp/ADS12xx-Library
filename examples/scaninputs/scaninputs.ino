@@ -2,8 +2,8 @@
 #include "ads12xx.h"
 
 #ifdef ENERGIA
-int  START = 8;
-int  CS = 10;
+int  START = 6;
+int  CS = 8;
 int  DRDY = 2;
 #endif
 

@@ -36,10 +36,12 @@ void ads12xx::begin(int CS, int START, int DRDY) {
 #define	spimodeX SPI_MODE3
 #endif
 
+	SPI.begin();
+
 #ifdef ENERGIA
-	SPI.setClockDivider(8); //For 25 MHz F5529
 	SPI.setBitOrder(MSBFIRST);
-	 SPI.setDataMode(spimodeX);
+	SPI.setDataMode(spimodeX);
+	SPI.setClockDivider(SPI_CLOCK_DIV8); //For 25 MHz F5529, (8) does not work either
 #endif
 
 	pinMode(DRDY, INPUT);             // DRDY read
@@ -50,7 +52,7 @@ void ads12xx::begin(int CS, int START, int DRDY) {
 	_CS = CS;
 	_DRDY = DRDY;
 	delay(500);
-	SPI.begin();
+//	SPI.begin();
 //	attachInterrupt(0, DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection ARDUINO
 	attachInterrupt(2, DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection ENERGIA
 
