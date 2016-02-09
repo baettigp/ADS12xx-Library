@@ -4,7 +4,7 @@
 #ifdef ENERGIA
 int  START = 6;
 int  CS = 8;
-int  DRDY = 2;
+int  DRDY = 5;
 #endif
 
 #ifndef ENERGIA

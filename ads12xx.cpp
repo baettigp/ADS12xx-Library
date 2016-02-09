@@ -54,8 +54,8 @@ void ads12xx::begin(int CS, int START, int DRDY) {
 	delay(500);
 //	SPI.begin();
 //	attachInterrupt(0, DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection ARDUINO
-	attachInterrupt(2, DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection ENERGIA
-
+	attachInterrupt(_DRDY, DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection ENERGIA
+    DRDY_state = digitalRead(_DRDY);
 	delay(500);
 
 	// interal VREF einschalten
