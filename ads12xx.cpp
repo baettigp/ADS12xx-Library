@@ -7,7 +7,6 @@ volatile int DRDY_state = HIGH;
 void waitforDRDY() {
 	while(DRDY_state) {		
 	}
-	//continue;
 	noInterrupts();
 	DRDY_state = HIGH;
 	interrupts();
@@ -53,9 +52,13 @@ void ads12xx::begin(int CS, int START, int DRDY) {
 	_DRDY = DRDY;
 	delay(500);
 //	SPI.begin();
-//	attachInterrupt(0, DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection ARDUINO
+#ifndef ENERGIA
+	attachInterrupt(digitalPinToInterrupt(_DRDY), DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection ARDUINO
+#endif
+#ifdef ENERGIA
 	attachInterrupt(_DRDY, DRDY_Interuppt, FALLING); //Interrupt setup for DRDY detection ENERGIA
-    DRDY_state = digitalRead(_DRDY);
+#endif
+	DRDY_state = digitalRead(_DRDY);
 	delay(500);
 
 	// interal VREF einschalten
@@ -209,14 +212,6 @@ void ads12xx::SendCMD(uint8_t cmd) {
 
 // function to reset the adc
 void ads12xx::Reset() {
-
-	//Pulse reset line.
-/*	pinMode(RESET_PIN, OUTPUT);
-	digitalWrite(RESET_PIN, HIGH);
-	digitalWrite(RESET_PIN, LOW);
-	delayMicroseconds(100);
-	digitalWrite(RESET_PIN, HIGH); //Reset line must be high before continue
-	delay(1); //RESET high to SPI communication start*/
 #ifndef ENERGIA
 	SPI.beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, spimodeX)); // initialize SPI with  clock, MSB first, SPI Mode1
 #endif
